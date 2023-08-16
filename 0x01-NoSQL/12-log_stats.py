@@ -5,11 +5,10 @@
     Display (same as the example)
     first line: x logs where x is the number of documents in this collection
     second line: Methods
-    5 lines with the number of documents with the method = ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    5 lines with the number of documents with
+    the method = ["GET", "POST", "PUT", "PATCH", "DELETE"]
     one line with the number of documents with method=GET path=/status
 """
-
-
 from pymongo import MongoClient
 
 
@@ -37,4 +36,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-
