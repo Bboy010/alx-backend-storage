@@ -1,38 +1,28 @@
 #!/usr/bin/env python3
-""" provides some stats about Nginx logs stored in MongoDB
-    Database: logs
-    Collection: nginx
-    Display (same as the example)
-    first line: x logs where x is the number of documents in this collection
-    second line: Methods
-    5 lines with the number of documents with
-    the method = ["GET", "POST", "PUT", "PATCH", "DELETE"]
-    one line with the number of documents with method=GET path=/status
-"""
+""" log test"""
 from pymongo import MongoClient
 
+# Connect to the MongoDB server
+client = MongoClient()
+database = client["logs"]
+collection = database["nginx"]
 
-def print_nginx_request_logs(nginx_collection):
-    '''Prints stats about Nginx request logs.
-    '''
-    print('{} logs'.format(nginx_collection.count_documents({})))
-    print('Methods:')
-    methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-    for method in methods:
-        req_count = len(list(nginx_collection.find({'method': method})))
-        print('\tmethod {}: {}'.format(method, req_count))
-    status_checks_count = len(list(
-        nginx_collection.find({'method': 'GET', 'path': '/status'})
-    ))
-    print('{} status check'.format(status_checks_count))
+# Get the total number of documents in the collection
+total_logs = collection.count_documents({})
 
+print(f"{total_logs} logs")
 
-def run():
-    '''Provides some stats about Nginx logs stored in MongoDB.
-    '''
-    client = MongoClient('mongodb://127.0.0.1:27017')
-    print_nginx_request_logs(client.logs.nginx)
+# Get the number of documents with each HTTP method
+http_methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
+method_stats = {method: collection.count_documents({"method": method}) for method in http_methods}
 
+print("Methods:")
+for method, count in method_stats.items():
+    print(f"    method {method}: {count}")
 
-if __name__ == '__main__':
-    run()
+# Get the number of documents with method=GET and path=/status
+get_status_count = collection.count_documents({"method": "GET", "path": "/status"})
+print(f"{get_status_count} status check")
+
+# Close the MongoDB connection
+client.close()
