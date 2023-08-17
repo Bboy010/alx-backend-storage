@@ -1,5 +1,5 @@
 # REDIS BASIC
-``` Redis is just a fnacy hash table ```
+``` Redis is just a fancy hash table ```
 ---
 
 ### Tasks 0
