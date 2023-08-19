@@ -1,24 +1,31 @@
 #!/usr/bin/env/ python3
-"""
-Exercise
-"""
+""" Task 0"""
 import redis
 import uuid
-from typing import Union
+import random
+import string
 
 
 class Cache:
     def __init__(self):
-        """
-        Define Cache init
-        """
+        # Initialize the Redis client and flush the database
         self._redis = redis.Redis()
-        self._redis.flushdb()  # Flush the Redis instance
+        self._redis.flushdb()
 
     def store(self, data):
         """
-        Store data and self
+        Store the input data in Redis using a randomly generated key.
+
+        Args:
+            data: The data to be stored in the cache.
+
+        Returns:
+            key: The randomly generated key under which the data is stored.
         """
-        key = str(uuid.uuid4())  # Generate a random key
-        self._redis.set(key, data)  # Store the data in Redis
-        return key
+        # Generate a random key using UUID and convert it to a string
+        random_key = str(uuid.uuid4())
+
+        # Store the data in Redis using the generated key
+        self._redis.set(random_key, data)
+
+        return random_key
