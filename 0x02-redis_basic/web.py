@@ -1,38 +1,30 @@
 #!/usr/bin/env python3
-'''Implementing an expiring web cache and tracker.
-'''
-import redis
+""" cache and track"""
 import requests
-from functools import wraps
-from typing import Callable
+import redis
 
 
-redis_cache = redis.Redis()
-'''The module-level Redis instance.
-'''
+class WebCache:
+    def __init__(self):
+        """initialization"""
+        self._redis = redis.Redis()
+        self._redis.flushdb()
 
+    def get_page(self, url: str) -> str:
+        # Track URL access count
+        count_key = f"count:{url}"
+        self._redis.incr(count_key)
 
-def data_cacher(method: Callable) -> Callable:
-    '''Caches the output of fetched data.
-    '''
-    @wraps(method)
-    def storing(url) -> str:
-        '''The wrapper function for caching the output.
-        '''
-        redis_cache.incr(f'count:{url}')
-        result = redis_cache.get(f'result:{url}')
-        if result:
-            return result.decode('utf-8')
-        result = method(url)
-        redis_cache.set(f'count:{url}', 0)
-        redis_cache.setex(f'result:{url}', 10, result)
-        return result
-    return storing
+        # Try to retrieve cached content
+        cached_content = self._redis.get(url)
+        if cached_content:
+            return cached_content.decode("utf-8")
 
+        # Fetch content from the URL
+        response = requests.get(url)
+        content = response.text
 
-@data_cacher
-def get_page(url: str) -> str:
-    '''Returns the content of a URL after caching the request's response,
-    and tracking the request.
-    '''
-    return requests.get(url).text
+        # Cache content with a 10-second expiration
+        self._redis.setex(url, 10, content)
+
+        return content
